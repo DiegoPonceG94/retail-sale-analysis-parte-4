@@ -1,0 +1,56 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Cargar datos 
+ruta_archivo = r"D:\curso\repositorio\retail-sale-analysis-parte-4\data\retail_sales_dataset.csv"
+
+# Cargar datos
+df = pd.read_csv(ruta_archivo)
+
+# Convertir columnas a tipos adecuados
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+df['Total Amount'] = pd.to_numeric(df['Total Amount'], errors='coerce')
+df['Quantity'] = pd.to_numeric(df['Quantity'], errors='coerce')
+df['Price per Unit'] = pd.to_numeric(df['Price per Unit'], errors='coerce')
+
+# Limpieza básica
+df = df.dropna(subset=['Date', 'Total Amount', 'Quantity', 'Price per Unit'])
+
+# Estadísticas descriptivas básicas
+print("Estadísticas descriptivas:\n")
+print(df[['Total Amount', 'Quantity', 'Price per Unit']].describe())
+
+# Histograma y boxplot combinados para 'Total Amount'
+plt.figure(figsize=(14,6))
+
+plt.subplot(1, 2, 1)
+sns.histplot(df['Total Amount'], bins=30, kde=True)
+plt.title('Histograma de Total Amount')
+
+plt.subplot(1, 2, 2)
+sns.boxplot(x=df['Total Amount'])
+plt.title('Boxplot de Total Amount')
+
+plt.tight_layout()
+plt.show()
+
+# Gráfico de líneas: ventas totales por mes
+df['Month'] = df['Date'].dt.to_period('M')
+ventas_por_mes = df.groupby('Month')['Total Amount'].sum()
+
+plt.figure(figsize=(12,6))
+ventas_por_mes.plot(kind='line', marker='o')
+plt.title('Ventas Totales por Mes')
+plt.xlabel('Mes')
+plt.ylabel('Total Amount')
+plt.grid(True)
+plt.show()
+
+# Gráfico de dispersión: Price per Unit vs Quantity
+plt.figure(figsize=(10,6))
+sns.scatterplot(data=df, x='Price per Unit', y='Quantity', alpha=0.6)
+plt.title('Relación entre Precio por Unidad y Cantidad')
+plt.xlabel('Precio por Unidad')
+plt.ylabel('Cantidad')
+plt.show()
